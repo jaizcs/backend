@@ -12,14 +12,14 @@ const seedTemplate = `
 'use strict'
 
 /** 
- * @param { import('@supabase/supabase-js').SupabaseClient<any, 'public', any> } supabase
+ * @param { import('../../types').Supabase } supabase
  **/
 export const up = async (supabase) => {
 	// insert data
 }
 
 /** 
- * @param { import('@supabase/supabase-js').SupabaseClient<any, 'public', any> } supabase
+ * @param { import('../../types').Supabase } supabase
  **/
 export const down = async (supabase) => {
 	// remove data

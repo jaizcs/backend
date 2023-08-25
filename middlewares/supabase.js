@@ -14,6 +14,7 @@ export const supabase = (req, _res, next) => {
 		});
 
 		req.db = supabase;
+		next();
 	} catch (err) {
 		next(err);
 	}

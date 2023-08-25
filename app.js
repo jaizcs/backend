@@ -11,6 +11,6 @@ export const app = express()
 	.use(cors())
 	.use(express.json())
 	.use(express.urlencoded({ extended: true }))
-	.use(supabase())
+	.use(supabase)
 	.use(router)
 	.use(handleError);

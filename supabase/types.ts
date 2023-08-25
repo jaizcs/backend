@@ -34,7 +34,33 @@ export interface Database {
 	};
 	public: {
 		Tables: {
-			[_ in never]: never;
+			Users: {
+				Row: {
+					createdAt: string;
+					email: string;
+					experienceYear: number | null;
+					id: string;
+					password: string;
+					updatedAt: string;
+				};
+				Insert: {
+					createdAt?: string;
+					email: string;
+					experienceYear?: number | null;
+					id?: string;
+					password: string;
+					updatedAt?: string;
+				};
+				Update: {
+					createdAt?: string;
+					email?: string;
+					experienceYear?: number | null;
+					id?: string;
+					password?: string;
+					updatedAt?: string;
+				};
+				Relationships: [];
+			};
 		};
 		Views: {
 			[_ in never]: never;

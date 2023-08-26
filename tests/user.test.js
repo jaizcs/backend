@@ -16,7 +16,6 @@ const user1 = {
 
 afterAll(async () => {
 	try {
-		console.log('atas');
 		await supabase.from('Users').delete().eq('email', user1.email);
 	} catch (error) {
 		console.log(error);
@@ -30,10 +29,9 @@ describe('User Routes Test', () => {
 		}) => {
 			const res = await request(app).post('/users').send(user1);
 			const { body, status } = res;
-			console.log('eaea');
+
 			userId = body.id;
 			expect(status).toBe(201);
-			expect(body).toHaveProperty('email', user1.email);
 			expect(body).toHaveProperty('email', user1.email);
 		});
 	});

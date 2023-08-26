@@ -28,7 +28,6 @@ export class userController {
 					password: hashPassword,
 					name,
 					isAvaliable: false,
-					experienceYear: 0,
 				})
 				.select('id , email');
 			res.status(201).json(data[0]);
@@ -55,7 +54,6 @@ export class userController {
 			const token = generateToken({
 				id: data[0].id,
 				email,
-				experienceYear: data[0].experienceYear,
 			});
 			res.status(200).json({
 				access_token: token,
@@ -75,7 +73,7 @@ export class userController {
 			const supabase = req.db;
 			const { data } = await supabase
 				.from('Users')
-				.select('id,email,name,isAvaliable,experienceYear,createdAt,updatedAt');
+				.select('id,email,name,isAvaliable,createdAt,updatedAt');
 			res.status(200).json(data);
 		} catch (error) {
 			next(error);
@@ -93,27 +91,7 @@ export class userController {
 			const { id } = req.params;
 			const { data } = await supabase
 				.from('Users')
-				.select('id,email,name,isAvaliable,experienceYear,createdAt,updatedAt')
-				.eq('id', id);
-			if (data.length === 0) throw 'userNotFound';
-			res.status(200).json(data[0]);
-		} catch (error) {
-			next(error);
-		}
-	}
-	/**
-	 *
-	 * @param { Request } req
-	 * @param { Response } res
-	 * @param { NextFunction } next
-	 */
-	static async getTokens(req, res, next) {
-		try {
-			const supabase = req.db;
-			const { id } = req.params;
-			const { data } = await supabase
-				.from('Users')
-				.select('id,email,name,isAvaliable,experienceYear,createdAt,updatedAt')
+				.select('id,email,name,isAvaliable,createdAt,updatedAt')
 				.eq('id', id);
 			if (data.length === 0) throw 'userNotFound';
 			res.status(200).json(data[0]);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { routerUser } from './user.js';
 import { authentication } from '../middlewares/authentication.js';
+import { routerWidget } from './widget.js';
 
 export const router = Router()
 	.get('/health-check', (_req, res, _next) => {
@@ -8,6 +9,4 @@ export const router = Router()
 	})
 	.use('/', routerUser)
 	.use(authentication)
-	.get('/test', (req, res) => {
-		console.log('exex');
-	});
+	.use('/tokens', routerWidget);

@@ -1,4 +1,6 @@
 import { Router } from 'express';
+
+import { routerTicket } from './ticket.js';
 import { routerUser } from './user.js';
 import { authentication } from '../middlewares/authentication.js';
 import { routerWidget } from './widget.js';
@@ -10,5 +12,6 @@ export const router = Router()
 	})
 	.use('/users', routerUser)
 	.post('/ticket/:id/resolutions', widgetContoller.generateResolution)
+	.use('/', routerTicket)
 	.use(authentication)
 	.use('/tokens', routerWidget);

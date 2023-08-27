@@ -2,7 +2,7 @@
 
 export const handleError = async (err, req, res, _next) => {
 	console.log(err, 'dari eror handle');
-  
+
 	let statusCode = 500;
 	let message = 'Internal server error';
 

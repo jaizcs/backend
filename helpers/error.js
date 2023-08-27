@@ -6,7 +6,7 @@ export class HttpError extends Error {
 			cause,
 		});
 
-		FineTuningJobsPage.code = code;
+		this.code = code;
 	}
 
 	toJSON() {

@@ -7,7 +7,7 @@ import { generateToken } from '../helpers/jwt.js';
  * @typedef { import('../types').NextFunction} NextFunction
  */
 
-export class userController {
+export class UserController {
 	/**
 	 * @param { Request } req
 	 * @param { Response } res
@@ -15,13 +15,12 @@ export class userController {
 	 */
 	static async register(req, res, next) {
 		try {
-			const supabase = req.db;
 			const { email, password, name, role } = req.body;
 			if (!email) throw { name: 'requireEmail' };
 			if (!password) throw { name: 'requirePassword' };
 			if (!name) throw { name: 'requireName' };
 
-			const { data } = await supabase
+			const { data: user } = await req.db
 				.from('Users')
 				.insert({
 					email,
@@ -29,10 +28,12 @@ export class userController {
 					name,
 					role,
 				})
-				.select('id , email');
-			res.status(201).json(data[0]);
-		} catch (error) {
-			next(error);
+				.select('id,email,name,role,createdAt,updatedAt')
+				.single();
+
+			res.status(201).send(user);
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -65,10 +66,10 @@ export class userController {
 				},
 			});
 			res.status(200).json({
-				access_token: token,
+				accessToken: token,
 			});
-		} catch (error) {
-			next(error);
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -84,8 +85,8 @@ export class userController {
 				.from('Users')
 				.select('id,email,name,role,createdAt,updatedAt');
 			res.status(200).json(data);
-		} catch (error) {
-			next(error);
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -105,8 +106,8 @@ export class userController {
 				.single();
 			if (!data) throw 'userNotFound';
 			res.status(200).json(data);
-		} catch (error) {
-			next(error);
+		} catch (err) {
+			next(err);
 		}
 	}
 }

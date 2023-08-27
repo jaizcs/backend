@@ -3,6 +3,7 @@
 import cors from 'cors';
 import express from 'express';
 
+import { authenticate } from './middlewares/auth.js';
 import { handleError } from './middlewares/error.js';
 import { openai } from './middlewares/openai.js';
 import { supabase } from './middlewares/supabase.js';
@@ -14,5 +15,6 @@ export const app = express()
 	.use(express.urlencoded({ extended: true }))
 	.use(openai)
 	.use(supabase)
+	.use(authenticate)
 	.use(router)
 	.use(handleError);

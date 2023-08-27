@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { userController } from '../controllers/userController.js';
+import { UserController } from '../controllers/userController.js';
+import { isAuthenticated } from '../middlewares/auth.js';
+import { isUser } from '../middlewares/authz.js';
 
 export const routerUser = Router()
-	.get('/', userController.fetchUsers)
-	.get('/:id', userController.fetchUsersById)
-	.post('/', userController.register)
-	.post('/tokens', userController.login);
+	.get('/', isAuthenticated, isUser, UserController.fetchUsers)
+	.post('/', UserController.register)
+	.post('/tokens', UserController.login)
+	.get('/:id', isAuthenticated, isUser, UserController.fetchUsersById);

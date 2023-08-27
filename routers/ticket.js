@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { ticketController } from '../controllers/ticketController.js';
+import { TicketController } from '../controllers/ticketController.js';
 
-export const routerTicket = Router().post(
-	'/createTicket',
-	ticketController.createTicket,
-);
+export const routerTicket = Router()
+	.get('/')
+	.post('/', TicketController.createTicket)
+	.get('/:id/ai')
+	.get('/:id/messages');

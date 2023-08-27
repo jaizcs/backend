@@ -4,10 +4,7 @@
  * @typedef { import('../types').NextFunction} NextFunction
  */
 
-import OpenAI from 'openai';
-import { generateToken } from '../helpers/jwt.js';
-
-export class ticketController {
+export class TicketController {
 	/**
 	 * @param { Request } req
 	 * @param { Response } res
@@ -15,7 +12,6 @@ export class ticketController {
 	 */
 	static async createTicket(req, res, next) {
 		try {
-			const supabase = req.db;
 			const {
 				type,
 				description,
@@ -25,7 +21,7 @@ export class ticketController {
 				resolution,
 			} = req.body;
 
-			const { data } = await supabase
+			const { data } = await req.db
 				.from('Tickets')
 				.insert({
 					description,
@@ -36,7 +32,6 @@ export class ticketController {
 					type,
 				})
 				.select('id');
-			console.log(data, 'line 77');
 
 			// const token = generateToken({
 			// 	id: data[0].id,
@@ -48,9 +43,8 @@ export class ticketController {
 			res.status(201).json({
 				// access_token: token,
 			});
-		} catch (error) {
-			console.log(error);
-			next(error);
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -59,5 +53,10 @@ export class ticketController {
 	 * @param { Response } res
 	 * @param { NextFunction } next
 	 */
-	static async getTickets(req, res, next) {}
+	static async getTickets(req, res, next) {
+		try {
+		} catch (err) {
+			next(err);
+		}
+	}
 }

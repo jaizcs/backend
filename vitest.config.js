@@ -6,5 +6,8 @@ export default defineConfig({
 			enabled: true,
 		},
 		reporters: 'verbose',
+		sequence: {
+			hooks: 'stack',
+		},
 	},
 });

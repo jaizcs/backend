@@ -3,7 +3,6 @@
  * @typedef { import('../types').Response} Response
  * @typedef { import('../types').NextFunction} NextFunction
  */
-import { comparePassword, hasingPassword } from '../helpers/hashing.js';
 import OpenAI from 'openai';
 import { generateToken } from '../helpers/jwt.js';
 
@@ -30,6 +29,7 @@ export class widgetContoller {
 			next(error);
 		}
 	}
+
 	/**
 	 *
 	 * @param { Request } req
@@ -58,6 +58,7 @@ export class widgetContoller {
 			next(error);
 		}
 	}
+
 	/**
 	 *
 	 * @param { Request } req

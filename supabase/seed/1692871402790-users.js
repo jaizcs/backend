@@ -1,11 +1,12 @@
 'use strict';
-import { hasingPassword } from '../../helpers/hashing.js';
+import { hashPassword } from '../../helpers/password.js';
+
 /**
  * @param { import('../../types').Supabase } supabase
  **/
 export const up = async (supabase) => {
 	// insert data
-	const password = hasingPassword('123456');
+	const password = hashPassword('123456');
 	await supabase.from('Users').insert({
 		email: 'admin@gmail.com',
 		password,

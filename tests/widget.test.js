@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe } from 'vitest';
 
 import { SUPABASE_SERVICE_KEY, SUPABASE_URL } from '../config.js';
-import { hasingPassword } from '../helpers/hashing.js';
+import { hashPassword } from '../helpers/password.js';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -17,12 +17,11 @@ const user1 = {
 };
 beforeAll(async () => {
 	try {
-		const hashPassword = hasingPassword(user1.password);
 		const { data } = await supabase
 			.from('Users')
 			.insert({
 				email: user1.email,
-				password: hashPassword,
+				password: hashPassword(user1.password),
 				name: user1.name,
 				isAvaliable: false,
 			})

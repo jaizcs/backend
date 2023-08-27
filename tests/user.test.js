@@ -47,6 +47,7 @@ describe('User Routes Test', () => {
 			expect(body).toHaveProperty('access_token', expect.any(String));
 		});
 	});
+
 	describe('GET /users - fetch users', (test) => {
 		test('200 fetch user - should return Users', async ({ expect }) => {
 			const res = await request(app).get('/users');
@@ -56,6 +57,7 @@ describe('User Routes Test', () => {
 			expect(body.length).toBeGreaterThan(0);
 		});
 	});
+
 	describe('GET /users - fetch user by id', (test) => {
 		test('200 fetch user by id - should return User', async ({ expect }) => {
 			const res = await request(app).get(`/users/${userId}`);

@@ -1,19 +1,16 @@
 'use strict';
 
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseClient } from '../helpers/supabase.js';
 
-import { SUPABASE_SERVICE_KEY, SUPABASE_URL } from '../config.js';
+let db;
 
 export const supabase = (req, _res, next) => {
 	try {
-		const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-			auth: {
-				autoRefreshToken: false,
-				persistSession: false,
-			},
-		});
+		if (!db) {
+			db = createSupabaseClient();
+		}
 
-		req.db = supabase;
+		req.db = db;
 		next();
 	} catch (err) {
 		next(err);

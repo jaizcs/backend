@@ -1,17 +1,13 @@
+import { generateToken } from '../helpers/jwt.js';
+
 /**
  * @typedef { import('../types').Request } Request
  * @typedef { import('../types').Response} Response
  * @typedef { import('../types').NextFunction} NextFunction
  */
-import OpenAI from 'openai';
-import { generateToken } from '../helpers/jwt.js';
 
-const openai = new OpenAI({
-	apiKey: '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', // defaults to process.env["OPENAI_API_KEY"]
-});
 export class widgetContoller {
 	/**
-	 *
 	 * @param { Request } req
 	 * @param { Response } res
 	 * @param { NextFunction } next
@@ -31,7 +27,6 @@ export class widgetContoller {
 	}
 
 	/**
-	 *
 	 * @param { Request } req
 	 * @param { Response } res
 	 * @param { NextFunction } next
@@ -39,12 +34,12 @@ export class widgetContoller {
 	static async createToken(req, res, next) {
 		try {
 			const supabase = req.db;
-			const { id, email } = req.user;
+			const { id } = req.user;
 			const token = generateToken({
-				id,
-				email,
 				role: 'anon',
-				type: 'widget',
+				app_metadata: {
+					type: 'widget',
+				},
 			});
 			const { data } = await supabase
 				.from('WidgetTokens')
@@ -60,7 +55,6 @@ export class widgetContoller {
 	}
 
 	/**
-	 *
 	 * @param { Request } req
 	 * @param { Response } res
 	 * @param { NextFunction } next
@@ -89,12 +83,12 @@ export class widgetContoller {
 					return `${i}.${el}.`;
 				})
 				.join('\n');
-			const result = `for this question bellow \n '${description}' \n chose one best answer from ${documents.length} answer below and  only display answer without the answer number \n ${data}`;
-			const { choices } = await openai.chat.completions.create({
-				messages: [{ role: 'user', content: result }],
+			const prompt = `for this question bellow \n '${description}' \n chose one best answer from ${documents.length} answer below and  only display answer without the answer number \n ${data}`;
+			const { choices } = await req.ai.chat.completions.create({
+				messages: [{ role: 'user', content: prompt }],
 				model: 'gpt-3.5-turbo',
 			});
-			//   console.log(choices[0].message.content,'ini jawaban chat gpt');
+
 			await supabase
 				.from('Messages')
 				.insert({ TikcetId: id, messages: choices[0].message.content });

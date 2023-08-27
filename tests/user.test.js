@@ -1,17 +1,17 @@
-import { app } from '../app.js';
 import request from 'supertest';
-import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe } from 'vitest';
 
-import { SUPABASE_SERVICE_KEY, SUPABASE_URL } from '../config.js';
+import { app } from '../app.js';
+import { createSupabaseClient } from '../helpers/supabase.js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const supabase = createSupabaseClient();
 
 let userId;
 const user1 = {
 	email: 'user.test@mail.com',
 	password: 'usertest',
 	name: 'test',
+	role: 'admin',
 };
 
 afterAll(async () => {

@@ -1,10 +1,11 @@
+import { comparePassword, hashPassword } from '../helpers/password.js';
+import { generateToken } from '../helpers/jwt.js';
+
 /**
  * @typedef { import('../types').Request } Request
  * @typedef { import('../types').Response} Response
  * @typedef { import('../types').NextFunction} NextFunction
  */
-import { comparePassword, hashPassword } from '../helpers/password.js';
-import { generateToken } from '../helpers/jwt.js';
 
 export class userController {
 	/**

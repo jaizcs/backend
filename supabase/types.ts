@@ -34,32 +34,158 @@ export interface Database {
 	};
 	public: {
 		Tables: {
+			Messages: {
+				Row: {
+					createdAt: string;
+					id: number;
+					message: string;
+					role: Database['public']['Enums']['MessageRole'];
+					TicketId: number;
+					updatedAt: string;
+					UserId: string | null;
+				};
+				Insert: {
+					createdAt?: string;
+					id?: number;
+					message: string;
+					role: Database['public']['Enums']['MessageRole'];
+					TicketId: number;
+					updatedAt?: string;
+					UserId?: string | null;
+				};
+				Update: {
+					createdAt?: string;
+					id?: number;
+					message?: string;
+					role?: Database['public']['Enums']['MessageRole'];
+					TicketId?: number;
+					updatedAt?: string;
+					UserId?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'Messages_TicketId_fkey';
+						columns: ['TicketId'];
+						referencedRelation: 'Tickets';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'Messages_UserId_fkey';
+						columns: ['UserId'];
+						referencedRelation: 'Users';
+						referencedColumns: ['id'];
+					},
+				];
+			};
+			Tickets: {
+				Row: {
+					createdAt: string;
+					description: string;
+					embedding: string;
+					id: number;
+					isSatisfactory: boolean;
+					resolution: string | null;
+					status: Database['public']['Enums']['TicketStatus'];
+					type: string;
+					updatedAt: string;
+					UserId: string | null;
+				};
+				Insert: {
+					createdAt?: string;
+					description: string;
+					embedding: string;
+					id?: number;
+					isSatisfactory?: boolean;
+					resolution?: string | null;
+					status?: Database['public']['Enums']['TicketStatus'];
+					type: string;
+					updatedAt?: string;
+					UserId?: string | null;
+				};
+				Update: {
+					createdAt?: string;
+					description?: string;
+					embedding?: string;
+					id?: number;
+					isSatisfactory?: boolean;
+					resolution?: string | null;
+					status?: Database['public']['Enums']['TicketStatus'];
+					type?: string;
+					updatedAt?: string;
+					UserId?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'Tickets_UserId_fkey';
+						columns: ['UserId'];
+						referencedRelation: 'Users';
+						referencedColumns: ['id'];
+					},
+				];
+			};
 			Users: {
 				Row: {
 					createdAt: string;
 					email: string;
-					experienceYear: number | null;
 					id: string;
+					name: string;
 					password: string;
+					role: Database['public']['Enums']['UserRole'];
 					updatedAt: string;
 				};
 				Insert: {
 					createdAt?: string;
 					email: string;
-					experienceYear?: number | null;
 					id?: string;
+					name: string;
 					password: string;
+					role?: Database['public']['Enums']['UserRole'];
 					updatedAt?: string;
 				};
 				Update: {
 					createdAt?: string;
 					email?: string;
-					experienceYear?: number | null;
 					id?: string;
+					name?: string;
 					password?: string;
+					role?: Database['public']['Enums']['UserRole'];
 					updatedAt?: string;
 				};
 				Relationships: [];
+			};
+			WidgetTokens: {
+				Row: {
+					createdAt: string;
+					id: string;
+					name: string;
+					token: string;
+					updatedAt: string;
+					UserId: string;
+				};
+				Insert: {
+					createdAt?: string;
+					id?: string;
+					name: string;
+					token: string;
+					updatedAt?: string;
+					UserId: string;
+				};
+				Update: {
+					createdAt?: string;
+					id?: string;
+					name?: string;
+					token?: string;
+					updatedAt?: string;
+					UserId?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'WidgetTokens_UserId_fkey';
+						columns: ['UserId'];
+						referencedRelation: 'Users';
+						referencedColumns: ['id'];
+					},
+				];
 			};
 		};
 		Views: {
@@ -69,7 +195,9 @@ export interface Database {
 			[_ in never]: never;
 		};
 		Enums: {
-			[_ in never]: never;
+			MessageRole: 'system' | 'ai' | 'assistant' | 'customer';
+			TicketStatus: 'in progress' | 'resolved' | 'unresolved';
+			UserRole: 'admin' | 'staff';
 		};
 		CompositeTypes: {
 			[_ in never]: never;

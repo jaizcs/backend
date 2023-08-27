@@ -92,9 +92,10 @@ export class userController {
 			const { data } = await supabase
 				.from('Users')
 				.select('id,email,name,isAvaliable,createdAt,updatedAt')
-				.eq('id', id);
-			if (data.length === 0) throw 'userNotFound';
-			res.status(200).json(data[0]);
+				.eq('id', id)
+				.single();
+			if (!data) throw 'userNotFound';
+			res.status(200).json(data);
 		} catch (error) {
 			next(error);
 		}

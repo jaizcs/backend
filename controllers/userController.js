@@ -4,7 +4,7 @@ import { generateToken } from '../helpers/jwt.js';
 /**
  * @typedef { import('../types').Request } Request
  * @typedef { import('../types').Response} Response
- * @typedef { import('../types').NextFunction} NextFunction
+ * @typedef { import('../types').NextFunction } NextFunction
  */
 
 export class UserController {

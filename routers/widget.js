@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { widgetContoller } from '../controllers/widgetController.js';
+import { isUser, isUserAdmin } from '../middlewares/authz.js';
 
 export const routerWidget = Router()
-	.get('/', widgetContoller.fetchToken)
-	.post('/', widgetContoller.createToken);
+	.get('/', isUser, isUserAdmin, widgetContoller.fetchToken)
+	.post('/', isUser, isUserAdmin, widgetContoller.createToken);

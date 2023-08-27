@@ -7,7 +7,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"dev": "node --watch bin/server.js",
+		"dev": "nodemon bin/server.js",
 		"test": "vitest run",
 		"test:watch": "vites run --watch",
 		"db:start": "supabase start",
@@ -40,6 +40,7 @@
 		"@vitest/coverage-v8": "^0.34.2",
 		"husky": "^8.0.0",
 		"lint-staged": "^14.0.1",
+		"nodemon": "^3.0.1",
 		"prettier": "^3.0.2",
 		"supabase": "^1.88.0",
 		"supertest": "^6.3.3",

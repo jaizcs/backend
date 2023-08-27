@@ -1,7 +1,7 @@
 'use strict';
 
 import OpenAI from 'openai';
-import { OPENAI_API_KEY } from '../config';
+import { OPENAI_API_KEY } from '../config.js';
 
 let ai;
 

@@ -25,3 +25,41 @@ export const isUser = (req, _res, next) => {
 		next(err);
 	}
 };
+
+export const isCustomer = (req, _res, next) => {
+	try {
+		const {
+			app_metadata: { type },
+		} = req.auth;
+
+		if (type !== 'ticket') throw new HttpError(403, 'You are not authorized');
+
+		const { id } = req.auth;
+
+		const { data: ticket } = req.db
+			.from('Tickets')
+			.select('id')
+			.eq('id', id)
+			.limit(1)
+			.single();
+		req.ticket = ticket;
+
+		next();
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const isWidget = (req, _res, next) => {
+	try {
+		const {
+			app_metadata: { type },
+		} = req.auth;
+
+		if (type !== 'widget') throw new HttpError(403, 'You are not authorized');
+
+		next();
+	} catch (err) {
+		next(err);
+	}
+};

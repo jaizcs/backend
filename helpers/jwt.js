@@ -1,9 +1,11 @@
 import jwt from 'jsonwebtoken';
-const SECRET = 'secret';
+
+import { JWT_SECRET } from '../config.js';
 
 export function generateToken(payload) {
-	return jwt.sign(payload, SECRET);
+	return jwt.sign(payload, JWT_SECRET);
 }
+
 export function verifyToken(token) {
-	return jwt.verify(token, SECRET);
+	return jwt.verify(token, JWT_SECRET);
 }

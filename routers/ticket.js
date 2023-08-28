@@ -1,7 +1,13 @@
 import { Router } from 'express';
-import { ticketController } from '../controllers/ticketController.js';
 
-export const routerTicket = Router().post(
-	'/createTicket',
-	ticketController.createTicket,
-);
+import { TicketController } from '../controllers/ticketController.js';
+import { isCustomer, isUser, isWidget } from '../middlewares/authz.js';
+
+export const routerTicket = Router()
+	.get('/', isUser, TicketController.fetchTickets)
+	.post('/', isWidget, TicketController.createTicket)
+	.get(
+		'/:id/similarity-search',
+		isCustomer,
+		TicketController.fetchSimilarResolution,
+	);

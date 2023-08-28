@@ -1,67 +1,187 @@
+import { generateToken } from '../helpers/jwt.js';
+import { usePagination } from '../helpers/pagination.js';
+
 /**
  * @typedef { import('../types').Request } Request
  * @typedef { import('../types').Response} Response
- * @typedef { import('../types').NextFunction} NextFunction
+ * @typedef { import('../types').NextFunction } NextFunction
  */
 
-// import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
-import { generateToken } from '../helpers/jwt.js';
-
-// import { supabaseClient } from './lib/supabase';
-
-export class ticketController {
+export class TicketController {
 	/**
-	 *
 	 * @param { Request } req
 	 * @param { Response } res
 	 * @param { NextFunction } next
 	 */
-
 	static async createTicket(req, res, next) {
 		try {
-			const { type, description, isSatisfactory, status, resolution } =
-				req.body;
-			console.log(req.body);
+			const { type, description } = req.body;
 
-			const openai = new OpenAI({
-				apiKey: process.env.OPENAI_API_KEY,
-			});
-			const embedding = await openai.embeddings.create({
-				model: 'text-embedding-ada-002',
+			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,
+				model: 'text-embedding-ada-002',
 			});
-			// // const [{ embedding }] = embeddingResponse.data.data
-			console.log(embedding.data[0].embedding);
-			const newEmbed = embedding.data[0].embedding;
-			const { data } = await req.db
+
+			const [{ embedding }] = embeddings;
+
+			const { data: ticket } = await req.db
 				.from('Tickets')
 				.insert({
 					description,
-					isSatisfactory,
-					status,
-					embedding: newEmbed,
-					resolution,
+					embedding,
 					type,
 				})
 				.select('id')
 				.single();
-			console.log(data, 'line 77');
 
 			const token = generateToken({
-				id: data.id,
-				type: 'ticket',
+				id: ticket.id,
+				role: 'authenticated',
+				app_metadata: {
+					type: 'ticket',
+				},
 			});
-
-			// console.log(token);
 
 			res.status(201).json({
-				access_token: token,
-				data,
+				accessToken: token,
 			});
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async fetchTickets(req, res, next) {
+		try {
+			const { page = 1, status } = req.query;
+			const { id: userId, role: userRole } = req.user;
+
+			const { count } = await req.db.from('Tickets').select('*', {
+				count: 'exact',
+				head: true,
+			});
+
+			const { limit, rangeStart, rangeEnd, pageCount } = usePagination({
+				count,
+				limit: 10,
+				page,
+			});
+
+			const dbQuery = req.db
+				.from('Tickets')
+				.select(
+					'id,type,description,isSatisfactory,status,resolution,UserId,createdAt,updatedAt',
+				)
+				.order('id', {
+					ascending: false,
+				})
+				.limit(limit)
+				.range(rangeStart, rangeEnd);
+
+			if (userRole === 'staff') dbQuery.eq('UserId', userId);
+			if (status) dbQuery.eq('status', status);
+
+			const { data: tickets } = await dbQuery;
+
+			res.status(200).json({
+				data: tickets,
+				page,
+				pageCount,
+				totalCount: count,
+			});
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async fetchSimilarResolution(req, res, next) {
+		try {
+			const { id } = req.params;
+			const { data: ticket } = await req.db
+				.from('Tickets')
+				.select()
+				.eq('id', id)
+				.single();
+
+			const description = ticket.description;
+			const { data: tickets } = await req.db.rpc('match_documents', {
+				query_embedding: embedding,
+				match_threshold: 0.7, // Choose an appropriate threshold for your data
+				match_count: 5, // Choose the number of matches
+			});
+			if (tickets.length === 0) {
+				return res.status(200).json({ resolution: null });
+			}
+
+			const formattedTicketDescriptions = tickets
+				.map((el, i = 1) => {
+					i++;
+					return `${i}.${el}.`;
+				})
+				.join('\n');
+			const prompt = `for this question bellow \n '${description}' \n chose one best answer from ${documents.length} answer below and  only display answer without the answer number \n ${formattedTicketDescriptions}`;
+			const { choices } = await req.ai.chat.completions.create({
+				messages: [{ role: 'user', content: prompt }],
+				model: 'gpt-3.5-turbo',
+			});
+
+			await req.db
+				.from('Messages')
+				.insert({ TikcetId: id, messages: choices[0].message.content });
+
+			res.status(200).send();
 		} catch (error) {
-			console.log(error);
 			next(error);
+		}
+	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async assignCustomerSupport(req, res, next) {
+		try {
+			const { id: ticketId } = req.params;
+
+			// push ticket to queue
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async resolveTicket(req, res, next) {
+		try {
+			const { id: ticketId } = req.params;
+
+			const { data: ticket } = await req.db
+				.from('Tickets')
+				.update({
+					status: 'resolved',
+				})
+				.eq('id', ticketId)
+				.select('id,UserId')
+				.single();
+
+			// add user to customer support queue if neeeded
+
+			res.status(200).send();
+		} catch (err) {
+			next(err);
 		}
 	}
 }

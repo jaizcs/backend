@@ -60,7 +60,7 @@ export class UserController {
 			const token = generateToken({
 				id: data.id,
 				email,
-				role: data.role,
+				role: 'authenticated',
 				app_metadata: {
 					type: 'user',
 				},

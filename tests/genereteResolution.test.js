@@ -18,7 +18,7 @@ beforeAll(async () => {
 			})
 			.select('id')
 			.single();
-		console.log(data, 'xixi');
+
 		ticketId = data.id;
 	} catch (error) {
 		console.log(error);

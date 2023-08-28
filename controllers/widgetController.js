@@ -34,7 +34,7 @@ export class widgetContoller {
 	static async createToken(req, res, next) {
 		try {
 			const supabase = req.db;
-			const { id } = req.user;
+			const { id } = req.auth;
 			const token = generateToken({
 				role: 'anon',
 				app_metadata: {

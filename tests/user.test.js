@@ -13,7 +13,7 @@ const user1 = {
 	email: 'user.test@mail.com',
 	password: 'usertest',
 	name: 'test',
-	role: 'admin',
+	role: 'user',
 };
 
 afterAll(async () => {
@@ -61,6 +61,20 @@ describe('User Routes Test', () => {
 		});
 	});
 
+	describe('GET /users/me - fetch my user data', () => {
+		it('200 fetch my user data - should return my data user', async ({
+			expect,
+		}) => {
+			const { body, status } = await request(app)
+				.get(`/users/me`)
+				.set('authorization', userAccessToken);
+
+			expect(status).toBe(200);
+			expect(body).toHaveProperty('email', expect.any(String));
+			expect(body).toHaveProperty('name', expect.any(String));
+		});
+	});
+
 	describe('GET /users - fetch user by id', () => {
 		it('200 fetch user by id - should return User', async ({ expect }) => {
 			const { body, status } = await request(app)
@@ -70,6 +84,7 @@ describe('User Routes Test', () => {
 			expect(status).toBe(200);
 			expect(body).toHaveProperty('email', expect.any(String));
 			expect(body).toHaveProperty('name', expect.any(String));
+			expect(body).toHaveProperty('role', expect.any(String));
 		});
 	});
 });

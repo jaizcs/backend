@@ -1,3 +1,4 @@
+import { generateToken } from '../helpers/jwt.js';
 import { usePagination } from '../helpers/pagination.js';
 
 /**

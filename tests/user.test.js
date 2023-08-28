@@ -1,8 +1,9 @@
 import request from 'supertest';
-import { afterAll, describe, it } from 'vitest';
-
+import { afterAll, describe, it, beforeEach, afterEach } from 'vitest';
+import { vi } from 'vitest';
 import { app } from '../app.js';
 import { createSupabaseClient } from '../helpers/supabase.js';
+import { generateToken } from '../helpers/jwt.js';
 
 const supabase = createSupabaseClient();
 
@@ -13,7 +14,13 @@ const user1 = {
 	email: 'user.test@mail.com',
 	password: 'usertest',
 	name: 'test',
-	role: 'staff',
+	role: 'admin',
+};
+const errorUser1 = {
+	email: 'user.test5@mail.com',
+	password: 'usertest',
+	name: 'test',
+	role: 'admin',
 };
 
 afterAll(async () => {
@@ -34,6 +41,38 @@ describe('User Routes Test', () => {
 
 			userId = body.id;
 		});
+		it('409 error email alredy exist - should error create new User', async ({
+			expect,
+		}) => {
+			const { body, status } = await request(app).post('/users').send(user1);
+
+			expect(status).toBe(409);
+			expect(body).toHaveProperty('message', 'Email alredy exist');
+		});
+		it('400 error email require', async ({ expect }) => {
+			const { body, status } = await request(app).post('/users').send({
+				password: 'usertest',
+				name: 'test',
+				role: 'admin',
+			});
+			expect(status).toBe(400);
+		});
+		it('400 error password require', async ({ expect }) => {
+			const { body, status } = await request(app).post('/users').send({
+				email: 'user.test5@mail.com',
+				name: 'test',
+				role: 'admin',
+			});
+			expect(status).toBe(400);
+		});
+		it('400 error name require', async ({ expect }) => {
+			const { body, status } = await request(app).post('/users').send({
+				email: 'user.test5@mail.com',
+				password: 'usertest',
+				role: 'admin',
+			});
+			expect(status).toBe(400);
+		});
 	});
 
 	describe('POST /users/tokens - user login', () => {
@@ -47,9 +86,47 @@ describe('User Routes Test', () => {
 
 			userAccessToken = body.accessToken;
 		});
+		it('401 error wrong email or password - should erroruser login', async ({
+			expect,
+		}) => {
+			const { body, status } = await request(app)
+				.post('/users/tokens')
+				.send(errorUser1);
+
+			expect(status).toBe(401);
+			expect(body).toHaveProperty('message', 'Wrong Email or Password');
+		});
+		it('401 error wrong email or password - should erroruser login', async ({
+			expect,
+		}) => {
+			const { body, status } = await request(app).post('/users/tokens').send({
+				email: 'user.test@mail.com',
+				password: 'usertest1',
+				name: 'test',
+				role: 'admin',
+			});
+
+			expect(status).toBe(401);
+			expect(body).toHaveProperty('message', 'Wrong Email or Password');
+		});
+		it('400 error require email', async ({ expect }) => {
+			const { body, status } = await request(app).post('/users/tokens').send({
+				password: 'usertest',
+			});
+			expect(status).toBe(400);
+		});
+		it('400 error require password', async ({ expect }) => {
+			const { body, status } = await request(app).post('/users/tokens').send({
+				email: 'user.test5@mail.com',
+			});
+			expect(status).toBe(400);
+		});
 	});
 
 	describe('GET /users - fetch users', () => {
+		// afterAll(() => {
+		//     vi.resetAllMocks()
+		// })
 		it('200 fetch user - should return Users', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.get('/users')
@@ -85,6 +162,13 @@ describe('User Routes Test', () => {
 			expect(body).toHaveProperty('email', expect.any(String));
 			expect(body).toHaveProperty('name', expect.any(String));
 			expect(body).toHaveProperty('role', expect.any(String));
+		});
+		it('404 fetch my user data not found', async ({ expect }) => {
+			const { body, status } = await request(app)
+				.get(`/users/idyangsalah`)
+				.set('authorization', userAccessToken);
+
+			expect(status).toBe(404);
 		});
 	});
 });

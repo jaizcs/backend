@@ -40,17 +40,18 @@ export const isWidget = (req, _res, next) => {
 	}
 };
 
-export const isUser = (req, _res, next) => {
+export const isUser = async (req, _res, next) => {
 	try {
 		const {
 			app_metadata: { type },
 		} = req.auth;
 
+		console.log(type, 'ini is user');
 		if (type !== 'user') throw new HttpError(403, 'You are not authorized');
 
 		const { id } = req.auth;
 
-		const { data: user } = req.db
+		const { data: user } = await req.db
 			.from('Users')
 			.select('id,email,name,role,createdAt,updatedAt')
 			.eq('id', id)
@@ -66,7 +67,7 @@ export const isUser = (req, _res, next) => {
 
 export const isUserAdmin = (req, _res, next) => {
 	try {
-		if (req.user.role !== 'admin')
+		if (req.auth.role !== 'admin')
 			throw new HttpError(403, 'You are not authorized');
 
 		next();

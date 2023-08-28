@@ -89,6 +89,25 @@ export class UserController {
 			next(err);
 		}
 	}
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async fetchMe(req, res, next) {
+		try {
+			const supabase = req.db;
+			const { id } = req.user;
+			const { data } = await supabase
+				.from('Users')
+				.select('id,email,name,role,createdAt,updatedAt')
+				.eq('id', id)
+				.single();
+			res.status(200).json(data);
+		} catch (err) {
+			next(err);
+		}
+	}
 
 	/**
 	 * @param { Request } req
@@ -101,7 +120,7 @@ export class UserController {
 			const { id } = req.params;
 			const { data } = await supabase
 				.from('Users')
-				.select('id,email,name,createdAt,updatedAt')
+				.select('id,email,name,role,createdAt,updatedAt')
 				.eq('id', id)
 				.single();
 			if (!data) throw 'userNotFound';

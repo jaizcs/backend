@@ -29,7 +29,7 @@ afterAll(async () => {
 });
 
 describe('Ticket Routes Test', () => {
-	describe('POST /createTicket - create new ticket', (test) => {
+	describe('POST /tickets - create new ticket', (test) => {
 		test('201 Success create ticket - should create new Ticket', async ({
 			expect,
 		}) => {

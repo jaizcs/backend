@@ -60,10 +60,15 @@ export class TicketController {
 			const { page = 1, status } = req.query;
 			const { id: userId, role: userRole } = req.user;
 
-			const { count } = await req.db.from('Tickets').select('*', {
-				count: 'exact',
-				head: true,
-			});
+			const { count } = await req.db
+				.from('Tickets')
+				.select(
+					'type description isSatisfactory status resolution UserId createdAt updatedAt',
+					{
+						count: 'exact',
+						head: true,
+					},
+				);
 
 			const { limit, rangeStart, rangeEnd, pageCount } = usePagination({
 				count,

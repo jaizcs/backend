@@ -20,27 +20,20 @@ export class ticketController {
 
 	static async createTicket(req, res, next) {
 		try {
-			// const supabase = req.db;
 			const { type, description, isSatisfactory, status, resolution } =
 				req.body;
 			console.log(req.body);
-			// console.log(supabase);
+
 			const openai = new OpenAI({
-				apiKey: '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',
+				apiKey: process.env.OPENAI_API_KEY,
 			});
-			// const openAi = new OpenAIApi(configuration);
-			// console.log(req.body);
 			const embedding = await openai.embeddings.create({
 				model: 'text-embedding-ada-002',
 				input: description,
 			});
-
 			// // const [{ embedding }] = embeddingResponse.data.data
 			console.log(embedding.data[0].embedding);
 			const newEmbed = embedding.data[0].embedding;
-			// // main();
-			// console.log(req.db);
-
 			const { data } = await req.db
 				.from('Tickets')
 				.insert({
@@ -53,7 +46,6 @@ export class ticketController {
 				})
 				.select('id')
 				.single();
-
 			console.log(data, 'line 77');
 
 			const token = generateToken({

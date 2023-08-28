@@ -24,7 +24,7 @@ const Ticket = {
 beforeAll(async () => {
 	try {
 		const openai = new OpenAI({
-			apiKey: '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',
+			apiKey: process.env.OPENAI_API_KEY,
 		});
 		const embedding = await openai.embeddings.create({
 			model: 'text-embedding-ada-002',

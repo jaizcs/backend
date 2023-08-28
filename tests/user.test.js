@@ -13,7 +13,7 @@ const user1 = {
 	email: 'user.test@mail.com',
 	password: 'usertest',
 	name: 'test',
-	role: 'user',
+	role: 'staff',
 };
 
 afterAll(async () => {

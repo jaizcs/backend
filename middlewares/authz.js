@@ -46,7 +46,6 @@ export const isUser = async (req, _res, next) => {
 			app_metadata: { type },
 		} = req.auth;
 
-		console.log(type, 'ini is user');
 		if (type !== 'user') throw new HttpError(403, 'You are not authorized');
 
 		const { id } = req.auth;
@@ -67,7 +66,7 @@ export const isUser = async (req, _res, next) => {
 
 export const isUserAdmin = (req, _res, next) => {
 	try {
-		if (req.auth.role !== 'admin')
+		if (req.user.role !== 'admin')
 			throw new HttpError(403, 'You are not authorized');
 
 		next();

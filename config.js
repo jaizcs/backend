@@ -27,3 +27,4 @@ export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export const PORT = Number(process.env.PORT) || 4000;
 export const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 export const SUPABASE_URL = process.env.SUPABASE_URL;
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;

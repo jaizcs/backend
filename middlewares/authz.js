@@ -40,7 +40,7 @@ export const isWidget = (req, _res, next) => {
 	}
 };
 
-export const isUser = (req, _res, next) => {
+export const isUser = async (req, _res, next) => {
 	try {
 		const {
 			app_metadata: { type },
@@ -51,7 +51,7 @@ export const isUser = (req, _res, next) => {
 
 		const { id } = req.auth;
 
-		const { data: user } = req.db
+		const { data: user } = await req.db
 			.from('Users')
 			.select('id,email,name,role,createdAt,updatedAt')
 			.eq('id', id)

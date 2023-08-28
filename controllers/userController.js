@@ -97,7 +97,7 @@ export class UserController {
 	static async fetchMe(req, res, next) {
 		try {
 			const supabase = req.db;
-			const { id } = req.auth;
+			const { id } = req.user;
 			const { data } = await supabase
 				.from('Users')
 				.select('id,email,name,role,createdAt,updatedAt')

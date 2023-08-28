@@ -43,6 +43,7 @@ export class TicketController {
 			});
 
 			res.status(201).json({
+				id: ticket.id,
 				accessToken: token,
 			});
 		} catch (err) {

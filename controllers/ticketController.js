@@ -114,30 +114,43 @@ export class TicketController {
 				.single();
 
 			const description = ticket.description;
-			const { data: tickets } = await req.db.rpc('match_documents', {
-				query_embedding: embedding,
-				match_threshold: 0.7, // Choose an appropriate threshold for your data
-				match_count: 5, // Choose the number of matches
+			console.log(description);
+			const { data: embeddings } = await req.ai.embeddings.create({
+				input: description,
+				model: 'text-embedding-ada-002',
 			});
-			if (tickets.length === 0) {
+
+			const [{ embedding }] = embeddings;
+
+			const { data: tickets } = await req.db.rpc('match_tickets', {
+				queryEmbedding: embedding,
+				ticketType: ticket.type,
+				matchThreshold: 0.9, // Choose an appropriate threshold for your data
+				matchCount: 5, // Choose the number of matches
+			});
+
+			if (tickets?.length === 0) {
 				return res.status(200).json({ resolution: null });
 			}
-
+			console.log(tickets);
 			const formattedTicketDescriptions = tickets
 				.map((el, i = 1) => {
 					i++;
-					return `${i}.${el}.`;
+					return `${i}.${el.resolution}.`;
 				})
 				.join('\n');
-			const prompt = `for this question bellow \n '${description}' \n chose one best answer from ${documents.length} answer below and  only display answer without the answer number \n ${formattedTicketDescriptions}`;
+			const prompt = `for this question bellow \n '${description}' \n chose one best answer from ${tickets.length} answer below and  only display answer without the answer number \n ${formattedTicketDescriptions}`;
+
 			const { choices } = await req.ai.chat.completions.create({
 				messages: [{ role: 'user', content: prompt }],
 				model: 'gpt-3.5-turbo',
 			});
 
-			await req.db
-				.from('Messages')
-				.insert({ TikcetId: id, messages: choices[0].message.content });
+			const { error } = await req.db.from('Messages').insert({
+				TicketId: +id,
+				message: choices[0].message.content,
+				role: 'ai',
+			});
 
 			res.status(200).send();
 		} catch (error) {

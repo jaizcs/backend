@@ -34,6 +34,7 @@ export class widgetContoller {
 	static async createToken(req, res, next) {
 		try {
 			const supabase = req.db;
+			const { name } = req.body;
 			const { id } = req.user;
 			const token = generateToken({
 				role: 'anon',
@@ -46,8 +47,10 @@ export class widgetContoller {
 				.insert({
 					token,
 					UserId: id,
+					name,
 				})
 				.select();
+
 			res.status(201).json(data[0]);
 		} catch (error) {
 			next(error);

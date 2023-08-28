@@ -16,6 +16,7 @@ export class UserController {
 	static async register(req, res, next) {
 		try {
 			const { email, password, name, role } = req.body;
+
 			if (!email) throw { name: 'requireEmail' };
 			if (!password) throw { name: 'requirePassword' };
 			if (!name) throw { name: 'requireName' };
@@ -30,7 +31,7 @@ export class UserController {
 				})
 				.select('id,email,name,role,createdAt,updatedAt')
 				.single();
-
+			console.log(user, 'test');
 			res.status(201).send(user);
 		} catch (err) {
 			next(err);

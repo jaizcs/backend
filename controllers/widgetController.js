@@ -13,17 +13,13 @@ export class widgetContoller {
 	 * @param { NextFunction } next
 	 */
 	static async fetchToken(req, res, next) {
-		try {
-			const supabase = req.db;
-			const { id } = req.user;
-			const { data } = await supabase
-				.from('WidgetTokens')
-				.select()
-				.eq('UserId', id);
-			res.status(200).json(data);
-		} catch (error) {
-			next(error);
-		}
+		const supabase = req.db;
+		const { id } = req.user;
+		const { data } = await supabase
+			.from('WidgetTokens')
+			.select()
+			.eq('UserId', id);
+		res.status(200).json(data);
 	}
 
 	/**

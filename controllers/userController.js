@@ -1,5 +1,6 @@
 import { comparePassword, hashPassword } from '../helpers/password.js';
 import { generateToken } from '../helpers/jwt.js';
+import { HttpError } from '../helpers/error.js';
 
 /**
  * @typedef { import('../types').Request } Request
@@ -15,13 +16,13 @@ export class UserController {
 	 */
 	static async register(req, res, next) {
 		try {
-			const { email, password, name, role } = req.body;
+			const { email, password, name, role = 'staff' } = req.body;
 
-			if (!email) throw { name: 'requireEmail' };
-			if (!password) throw { name: 'requirePassword' };
-			if (!name) throw { name: 'requireName' };
+			if (!email) throw new HttpError(400, 'Email must Require');
+			if (!password) throw new HttpError(400, 'Password must Require');
+			if (!name) throw new HttpError(400, 'Name must Require');
 
-			const { data: user } = await req.db
+			const { data: user, error } = await req.db
 				.from('Users')
 				.insert({
 					email,
@@ -31,7 +32,11 @@ export class UserController {
 				})
 				.select('id,email,name,role,createdAt,updatedAt')
 				.single();
-			console.log(user, 'test');
+			if (
+				error?.message ===
+				'duplicate key value violates unique constraint "Users_email_key"'
+			)
+				throw new HttpError(409, 'Email alredy exist');
 			res.status(201).send(user);
 		} catch (err) {
 			next(err);
@@ -47,17 +52,16 @@ export class UserController {
 		try {
 			const supabase = req.db;
 			const { email, password } = req.body;
-			if (!email) throw { name: 'requireEmail' };
-			if (!password) throw { name: 'requirePassword' };
+			if (!email) throw new HttpError(400, 'Email must Require');
+			if (!password) throw new HttpError(400, 'Password must Require');
 			const { data } = await supabase
 				.from('Users')
 				.select()
 				.eq('email', email)
 				.single();
-			if (!data) throw { name: 'InvalidUser' };
+			if (!data) throw new HttpError(401, 'Wrong Email or Password');
 			const thisPassword = comparePassword(password, data.password);
-			if (!thisPassword) throw { name: 'InvalidUser' };
-
+			if (!thisPassword) throw new HttpError(401, 'Wrong Email or Password');
 			const token = generateToken({
 				id: data.id,
 				email,
@@ -80,15 +84,11 @@ export class UserController {
 	 * @param { NextFunction } next
 	 */
 	static async fetchUsers(req, res, next) {
-		try {
-			const supabase = req.db;
-			const { data } = await supabase
-				.from('Users')
-				.select('id,email,name,role,createdAt,updatedAt');
-			res.status(200).json(data);
-		} catch (err) {
-			next(err);
-		}
+		const supabase = req.db;
+		const { data } = await supabase
+			.from('Users')
+			.select('id,email,name,role,createdAt,updatedAt');
+		res.status(200).json(data);
 	}
 	/**
 	 * @param { Request } req
@@ -96,18 +96,14 @@ export class UserController {
 	 * @param { NextFunction } next
 	 */
 	static async fetchMe(req, res, next) {
-		try {
-			const supabase = req.db;
-			const { id } = req.user;
-			const { data } = await supabase
-				.from('Users')
-				.select('id,email,name,role,createdAt,updatedAt')
-				.eq('id', id)
-				.single();
-			res.status(200).json(data);
-		} catch (err) {
-			next(err);
-		}
+		const supabase = req.db;
+		const { id } = req.user;
+		const { data } = await supabase
+			.from('Users')
+			.select('id,email,name,role,createdAt,updatedAt')
+			.eq('id', id)
+			.single();
+		res.status(200).json(data);
 	}
 
 	/**
@@ -124,7 +120,7 @@ export class UserController {
 				.select('id,email,name,role,createdAt,updatedAt')
 				.eq('id', id)
 				.single();
-			if (!data) throw 'userNotFound';
+			if (!data) throw new HttpError(404, 'User not found');
 			res.status(200).json(data);
 		} catch (err) {
 			next(err);

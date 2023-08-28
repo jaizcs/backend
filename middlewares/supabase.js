@@ -1,16 +1,10 @@
 'use strict';
 
-import { createSupabaseClient } from '../helpers/supabase.js';
-
-let db;
+import { getSupabaseClient } from '../helpers/supabase.js';
 
 export const supabase = (req, _res, next) => {
 	try {
-		if (!db) {
-			db = createSupabaseClient();
-		}
-
-		req.db = db;
+		req.db = getSupabaseClient();
 		next();
 	} catch (err) {
 		next(err);

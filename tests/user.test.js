@@ -2,10 +2,10 @@ import request from 'supertest';
 import { afterAll, describe, it, beforeEach, afterEach } from 'vitest';
 import { vi } from 'vitest';
 import { app } from '../app.js';
-import { createSupabaseClient } from '../helpers/supabase.js';
+import { getSupabaseClient } from '../helpers/supabase.js';
 import { generateToken } from '../helpers/jwt.js';
 
-const supabase = createSupabaseClient();
+const supabase = getSupabaseClient();
 
 let userId;
 let userAccessToken;

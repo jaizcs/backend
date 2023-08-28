@@ -72,12 +72,13 @@ switch (command) {
 			},
 		});
 
-		const seedPaths = fs.readdirSync(
-			path.resolve(process.cwd(), 'supabase/seed'),
-			{ encoding: 'utf-8' },
-		);
+		const seedPaths = fs
+			.readdirSync(path.resolve(process.cwd(), 'supabase/seed'), {
+				encoding: 'utf-8',
+			})
+			.filter((seedPath) => seedPath.endsWith('.js'));
 
-		for (const seedPath of seedPaths.reverse()) {
+		for (const seedPath of seedPaths) {
 			const { up } = await import(
 				path.resolve(process.cwd(), 'supabase/seed', seedPath)
 			);
@@ -137,7 +138,7 @@ switch (command) {
 			{ encoding: 'utf-8' },
 		);
 
-		for (const seedPath of seedPaths) {
+		for (const seedPath of seedPaths.reverse()) {
 			const { down } = await await import(
 				path.resolve(process.cwd(), 'supabase/seed', seedPath)
 			);

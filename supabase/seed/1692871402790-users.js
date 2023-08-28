@@ -8,11 +8,10 @@ export const up = async (supabase) => {
 	// insert data
 	const password = hashPassword('123456');
 	await supabase.from('Users').insert({
-		email: 'admin@gmail.com',
+		email: 'johndoe@mail.com',
 		password,
-		name: 'admin',
-		experienceYear: 4,
-		isAvailable: false,
+		name: 'John Doe',
+		role: 'admin',
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	});
@@ -23,5 +22,5 @@ export const up = async (supabase) => {
  **/
 export const down = async (supabase) => {
 	// remove data
-	await supabase.from('countries').delete();
+	await supabase.from('Users').delete().not('id', 'is', null);
 };

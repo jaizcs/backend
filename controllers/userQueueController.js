@@ -33,9 +33,7 @@ export class UserQueueController {
 	static async isInQueue(req, res, next) {
 		try {
 			const { id: userId } = req.user;
-			console.log(userId, 'ini user id');
 			const isInQueue = await req.redis.sismember('user:available', userId);
-			console.log(isInQueue, 'ini dari queque');
 			if (!isInQueue) res.status(200).send({ isAvailable: false });
 			res.status(200).send({ isAvailable: true });
 		} catch (err) {

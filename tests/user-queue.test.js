@@ -46,14 +46,16 @@ afterAll(async () => {
 });
 
 describe('User Routes Test', () => {
-	describe('POST /users - create new user', () => {
-		it('201 Success register - should create new User', async ({ expect }) => {
+	describe('POST /user-queue - create new user-queue', () => {
+		it('201 Success create new user-queue - should create new user-queue', async ({
+			expect,
+		}) => {
 			const { body, status } = await request(app)
 				.post('/user-queue')
 				.set('authorization', userAccessToken);
 			expect(status).toBe(200);
 		});
-		it('201 Success register - should create new User', async ({ expect }) => {
+		it('200 user alredy - should create new User', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.post('/user-queue')
 				.set('authorization', userAccessToken);
@@ -61,6 +63,19 @@ describe('User Routes Test', () => {
 		});
 	});
 });
+
+describe('User Routes Test', () => {
+	describe('GET /user-queue - create new user', () => {
+		it('200 Success get user-in-queue', async ({ expect }) => {
+			const { body, status } = await request(app)
+				.get('/user-queue')
+				.set('authorization', userAccessToken);
+			expect(status).toBe(200);
+			expect(body).toHaveProperty('isAvailable', true);
+		});
+	});
+});
+
 describe('User-queue Routes Test', () => {
 	describe('delete /user-queue', () => {
 		it('200 Success delete user from queue', async ({ expect }) => {

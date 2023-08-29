@@ -17,6 +17,7 @@ export class UserQueueController {
 	static async addToQueue(req, res, next) {
 		try {
 			const { id: userId } = req.user;
+			if (!userId) throw new HttpError(500, 'internal server error');
 
 			const isInQueue = await req.redis.sismember('user:available', userId);
 			if (isInQueue) throw new HttpError(400, 'User is already in queue');
@@ -25,6 +26,16 @@ export class UserQueueController {
 			await req.redis.lpush('user:queue', userId);
 
 			res.status(200).send();
+		} catch (err) {
+			next(err);
+		}
+	}
+	static async isInQueue(req, res, next) {
+		try {
+			const { id: userId } = req.user;
+			const isInQueue = await req.redis.sismember('user:available', userId);
+			if (!isInQueue) res.status(200).send({ isAvailable: false });
+			res.status(200).send({ isAvailable: true });
 		} catch (err) {
 			next(err);
 		}

@@ -137,7 +137,7 @@ export class TicketController {
 
 			if (tickets?.length === 0) {
 				const userId = await redis.lpop('user:queue');
-				console.log('jalan');
+
 				const { data: userData } = await supabase
 					.from('Users')
 					.select('id, name')

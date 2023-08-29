@@ -1,6 +1,6 @@
 'use strict';
 
-import { HttpError } from '../helpers/error';
+import { HttpError } from '../helpers/error.js';
 
 /**
  * @typedef { import('../types').Request } Request

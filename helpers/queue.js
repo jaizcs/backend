@@ -16,15 +16,24 @@ export const addTicketToQueue = async ({ ticketId, userId }) => {
 	});
 };
 
-const ticketWorker = new Worker('ticket', async (job) => {
-	const { ticketId, userId } = job.data;
+new Worker(
+	'ticket',
+	async (job) => {
+		const { ticketId, userId } = job.data;
 
-	// update ticket UserId
-	const supabase = getSupabaseClient();
-	await supabase
-		.from('Tickets')
-		.update({
-			UserId: userId,
-		})
-		.eq('id', ticketId);
-});
+		// update ticket UserId
+		const supabase = getSupabaseClient();
+		await supabase
+			.from('Tickets')
+			.update({
+				UserId: userId,
+			})
+			.eq('id', ticketId);
+
+		const redis = getRedisClient();
+		redis.lpush('user:queue', userId);
+	},
+	{
+		connection: getRedisClient(),
+	},
+);

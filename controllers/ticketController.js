@@ -1,5 +1,7 @@
 import { generateToken } from '../helpers/jwt.js';
 import { usePagination } from '../helpers/pagination.js';
+import { HttpError } from '../helpers/error.js';
+import { addTicketToQueue } from '../helpers/queue.js';
 
 /**
  * @typedef { import('../types').Request } Request
@@ -16,6 +18,8 @@ export class TicketController {
 	static async createTicket(req, res, next) {
 		try {
 			const { type, description } = req.body;
+
+			if (!description) throw new HttpError(400, 'Description must require');
 
 			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,
@@ -106,6 +110,8 @@ export class TicketController {
 	 */
 	static async fetchSimilarResolution(req, res, next) {
 		try {
+			const redis = req.redis;
+			const supabase = req.db;
 			const { id } = req.params;
 			const { data: ticket } = await req.db
 				.from('Tickets')
@@ -114,7 +120,7 @@ export class TicketController {
 				.single();
 
 			const description = ticket.description;
-			console.log(description);
+
 			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,
 				model: 'text-embedding-ada-002',
@@ -130,9 +136,23 @@ export class TicketController {
 			});
 
 			if (tickets?.length === 0) {
-				return res.status(200).json({ resolution: null });
+				const userId = await redis.lpop('user:queue');
+
+				const { data: userData } = await supabase
+					.from('Users')
+					.select('id, name')
+					.eq('id', userId)
+					.single();
+
+				await addTicketToQueue({ ticketId: ticket.id, userId: userId });
+				return res.status(200).json({
+					user: {
+						id: userData.id,
+						name: userData.name,
+					},
+				});
 			}
-			console.log(tickets);
+
 			const formattedTicketDescriptions = tickets
 				.map((el, i = 1) => {
 					i++;
@@ -146,7 +166,7 @@ export class TicketController {
 				model: 'gpt-3.5-turbo',
 			});
 
-			const { error } = await req.db.from('Messages').insert({
+			await req.db.from('Messages').insert({
 				TicketId: +id,
 				message: choices[0].message.content,
 				role: 'ai',
@@ -163,29 +183,16 @@ export class TicketController {
 	 * @param { Response } res
 	 * @param { NextFunction } next
 	 */
-	static async assignCustomerSupport(req, res, next) {
-		try {
-			const { id: ticketId } = req.params;
-
-			// push ticket to queue
-		} catch (err) {
-			next(err);
-		}
-	}
-
-	/**
-	 * @param { Request } req
-	 * @param { Response } res
-	 * @param { NextFunction } next
-	 */
 	static async resolveTicket(req, res, next) {
 		try {
 			const { id: ticketId } = req.params;
-
+			const { resolution } = req.body;
 			const { data: ticket } = await req.db
 				.from('Tickets')
 				.update({
 					status: 'resolved',
+					isSatisfactory: true,
+					resolution,
 				})
 				.eq('id', ticketId)
 				.select('id,UserId')

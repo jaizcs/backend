@@ -19,7 +19,7 @@ export class UserQueueController {
 			const { id: userId } = req.user;
 
 			const isInQueue = await req.redis.sismember('user:available', userId);
-			if (isInQueue) throw HttpError(400, 'User is already in queue');
+			if (isInQueue) throw new HttpError(400, 'User is already in queue');
 
 			await req.redis.sadd('user:available', userId);
 			await req.redis.lpush('user:queue', userId);
@@ -40,7 +40,7 @@ export class UserQueueController {
 			const { id: userId } = req.user;
 
 			const isInQueue = await req.redis.sismember('user:available', userId);
-			if (!isInQueue) throw HttpError(404, 'User not found');
+			if (!isInQueue) throw new HttpError(404, 'User not found');
 
 			await req.redis.srem('user:available', userId);
 

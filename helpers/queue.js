@@ -9,18 +9,15 @@ const ticketQueue = new Queue('ticket', {
 	connection: getRedisClient(),
 });
 
-export const addTicketToQueue = async (ticketId) => {
+export const addTicketToQueue = async ({ ticketId, userId }) => {
 	await ticketQueue.add('queue-ticket', {
 		ticketId,
+		userId,
 	});
 };
 
 const ticketWorker = new Worker('ticket', async (job) => {
-	const { ticketId } = job.data;
-
-	// get available customer support
-	const redis = getRedisClient();
-	const userId = redis.lpop('user:queue');
+	const { ticketId, userId } = job.data;
 
 	// update ticket UserId
 	const supabase = getSupabaseClient();

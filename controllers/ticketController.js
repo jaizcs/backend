@@ -38,13 +38,16 @@ export class TicketController {
 				.select('id')
 				.single();
 
-			const token = generateToken({
-				id: ticket.id,
-				role: 'authenticated',
-				app_metadata: {
-					type: 'ticket',
+			const token = generateToken(
+				{
+					id: ticket.id,
+					role: 'authenticated',
+					app_metadata: {
+						type: 'ticket',
+					},
 				},
-			});
+				{ expiresIn: '1d' },
+			);
 
 			res.status(201).json({
 				id: ticket.id,
@@ -113,13 +116,19 @@ export class TicketController {
 			const redis = req.redis;
 			const supabase = req.db;
 			const { id } = req.params;
-			const { data: ticket } = await req.db
+			const { data: ticket } = await supabase
 				.from('Tickets')
 				.select()
 				.eq('id', id)
 				.single();
 
 			const description = ticket.description;
+
+			await supabase.from('Messages').insert({
+				message: description,
+				role: 'customer',
+				TicketId: ticket,
+			});
 
 			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,
@@ -137,7 +146,7 @@ export class TicketController {
 
 			if (tickets?.length === 0) {
 				const userId = await redis.lpop('user:queue');
-
+				if (!userId) throw new HttpError(404, 'User queue is empty');
 				const { data: userData } = await supabase
 					.from('Users')
 					.select('id, name')

@@ -55,7 +55,7 @@ describe('User Routes Test', () => {
 				.set('authorization', userAccessToken);
 			expect(status).toBe(200);
 		});
-		it('200 user alredy - should create new User', async ({ expect }) => {
+		it('400 user alredy in queue', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.post('/user-queue')
 				.set('authorization', userAccessToken);
@@ -84,11 +84,18 @@ describe('User-queue Routes Test', () => {
 				.set('authorization', userAccessToken);
 			expect(status).toBe(200);
 		});
-		it('201 Success register - should create new User', async ({ expect }) => {
+		it('404 User not found in queue', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.delete('/user-queue')
 				.set('authorization', userAccessToken);
 			expect(status).toBe(404);
+		});
+		it('200 user not available', async ({ expect }) => {
+			const { body, status } = await request(app)
+				.get('/user-queue')
+				.set('authorization', userAccessToken);
+			expect(status).toBe(200);
+			expect(body).toHaveProperty('isAvailable', false);
 		});
 	});
 });

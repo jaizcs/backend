@@ -62,14 +62,17 @@ export class UserController {
 			if (!data) throw new HttpError(401, 'Wrong Email or Password');
 			const thisPassword = comparePassword(password, data.password);
 			if (!thisPassword) throw new HttpError(401, 'Wrong Email or Password');
-			const token = generateToken({
-				id: data.id,
-				email,
-				role: 'authenticated',
-				app_metadata: {
-					type: 'user',
+			const token = generateToken(
+				{
+					id: data.id,
+					email,
+					role: 'authenticated',
+					app_metadata: {
+						type: 'user',
+					},
 				},
-			});
+				{ expiresIn: '1w' },
+			);
 			res.status(200).json({
 				accessToken: token,
 			});

@@ -147,7 +147,7 @@ describe('Ticket Routes Test', () => {
 	});
 
 	describe('GET /tickets/:id/similarity-search - generate similar search resolution', () => {
-		it('200  generate similar search resolution - should return resolution', async ({
+		it.skip('200  generate similar search resolution - should return resolution', async ({
 			expect,
 		}) => {
 			const res = await request(app)

@@ -1,9 +1,7 @@
 import request from 'supertest';
-import { afterAll, describe, it, beforeEach, afterEach } from 'vitest';
-import { vi } from 'vitest';
+import { afterAll, describe, it } from 'vitest';
 import { app } from '../app.js';
 import { getSupabaseClient } from '../helpers/supabase.js';
-import { generateToken } from '../helpers/jwt.js';
 
 const supabase = getSupabaseClient();
 
@@ -124,9 +122,6 @@ describe('User Routes Test', () => {
 	});
 
 	describe('GET /users - fetch users', () => {
-		// afterAll(() => {
-		//     vi.resetAllMocks()
-		// })
 		it('200 fetch user - should return Users', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.get('/users')

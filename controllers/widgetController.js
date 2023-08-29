@@ -1,3 +1,4 @@
+import { HttpError } from '../helpers/error.js';
 import { generateToken } from '../helpers/jwt.js';
 
 /**
@@ -32,6 +33,9 @@ export class widgetContoller {
 			const supabase = req.db;
 			const { name } = req.body;
 			const { id } = req.user;
+
+			if (!name) throw new HttpError(400, 'Name must require');
+
 			const token = generateToken({
 				role: 'anon',
 				app_metadata: {

@@ -54,20 +54,20 @@ describe('POST /tokens - user create widget', (test) => {
 	}) => {
 		const res = await request(app)
 			.post('/widget-tokens')
-			.send('name', 'yujin')
+			.send({ name: 'yujin' })
 			.set('authorization', userAccessToken);
 		const { body, status } = res;
 
 		expect(status).toBe(201);
 		expect(body).toHaveProperty('UserId', userId);
 	});
-	test('500 internal server error', async ({ expect }) => {
+	test('400 name must require', async ({ expect }) => {
 		const res = await request(app)
 			.post('/widget-tokens')
 			.set('authorization', userAccessToken);
 		const { body, status } = res;
 
-		expect(status).toBe(500);
+		expect(status).toBe(400);
 	});
 });
 describe('GET /tokens - fetch all Widget on users', (test) => {

@@ -147,7 +147,7 @@ describe('Ticket Routes Test', () => {
 	});
 
 	describe('GET /tickets/:id/similarity-search - generate similar search resolution', () => {
-		it.skip('200  generate similar search resolution - should return resolution', async ({
+		it('200  generate similar search resolution - should return resolution', async ({
 			expect,
 		}) => {
 			const res = await request(app)
@@ -172,16 +172,22 @@ describe('Ticket Routes Test', () => {
 			expect(status).toBe(200);
 		}, 20000);
 	});
-	describe('GET /tickets/:id/similarity-search - generate similar search resolution', () => {
-		it('200  generate similar search resolution - should return resolution', async ({
-			expect,
-		}) => {
+	describe('PATCH /tickets/:id - resolve resolution from ai', () => {
+		it('200  patch resolution', async ({ expect }) => {
 			const res = await request(app)
 				.patch(`/tickets/${ticketId}`)
-				.send('resolution', 'isbest resolution');
+				.send({ resolution: 'best resolution ever' })
+				.set('authorization', ticketAccessToken);
 			const { body, status } = res;
-
 			expect(status).toBe(200);
 		}, 20000);
+		it('400 invalid syntax', async ({ expect }) => {
+			const res = await request(app)
+				.patch(`/tickets/ticketIdGagal`)
+				.send({ resolution: 'best resolution ever' })
+				.set('authorization', ticketAccessToken);
+			const { body, status } = res;
+			expect(status).toBe(400);
+		});
 	});
 });

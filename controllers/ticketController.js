@@ -137,7 +137,7 @@ export class TicketController {
 
 			if (tickets?.length === 0) {
 				const userId = await redis.lpop('user:queue');
-
+				console.log('jalan');
 				const { data: userData } = await supabase
 					.from('Users')
 					.select('id, name')
@@ -186,8 +186,9 @@ export class TicketController {
 	static async resolveTicket(req, res, next) {
 		try {
 			const { id: ticketId } = req.params;
+
 			const { resolution } = req.body;
-			const { data: ticket } = await req.db
+			const { error } = await req.db
 				.from('Tickets')
 				.update({
 					status: 'resolved',
@@ -197,8 +198,7 @@ export class TicketController {
 				.eq('id', ticketId)
 				.select('id,UserId')
 				.single();
-
-			// add user to customer support queue if neeeded
+			if (error) throw new HttpError(400, 'invalid input syntax');
 
 			res.status(200).send();
 		} catch (err) {

@@ -91,15 +91,8 @@ export class TicketController {
 					resolution,
 					UserId,
 					createdAt,
-					updatedAt,
-					user (
-						id,
-						name,
-						email,
-						role,
-						createdAt,
-						updatedAt
-					)`,
+					updatedAt
+					`,
 				)
 				.order('id', {
 					ascending: false,
@@ -112,8 +105,28 @@ export class TicketController {
 
 			const { data: tickets } = await dbQuery;
 
+			const ticketsWithUser = await Promise.all(
+				tickets.map(async (ticket) => {
+					let user;
+
+					if (ticket.UserId) {
+						const { data } = await req.db
+							.from('Users')
+							.select('id,name,email,role')
+							.eq('id', ticket.UserId)
+							.single();
+						user = data;
+					}
+
+					return {
+						...ticket,
+						user,
+					};
+				}),
+			);
+
 			res.status(200).json({
-				data: tickets,
+				data: ticketsWithUser,
 				page,
 				pageCount,
 				totalCount: count,

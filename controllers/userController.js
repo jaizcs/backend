@@ -55,8 +55,6 @@ export class UserController {
 			if (!email) throw new HttpError(400, 'Email must Require');
 			if (!password) throw new HttpError(400, 'Password must Require');
 
-			console.log(email);
-
 			const { data } = await supabase
 				.from('Users')
 				.select()

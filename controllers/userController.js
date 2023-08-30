@@ -50,12 +50,11 @@ export class UserController {
 	 */
 	static async login(req, res, next) {
 		try {
-			const supabase = req.db;
 			const { email, password } = req.body;
 			if (!email) throw new HttpError(400, 'Email must Require');
 			if (!password) throw new HttpError(400, 'Password must Require');
 
-			const { data } = await supabase
+			const { data } = await req.db
 				.from('Users')
 				.select()
 				.eq('email', email)
@@ -90,8 +89,7 @@ export class UserController {
 	 * @param { NextFunction } next
 	 */
 	static async fetchUsers(req, res, next) {
-		const supabase = req.db;
-		const { data } = await supabase
+		const { data } = await req.db
 			.from('Users')
 			.select('id,email,name,role,createdAt,updatedAt');
 		res.status(200).json(data);
@@ -102,9 +100,8 @@ export class UserController {
 	 * @param { NextFunction } next
 	 */
 	static async fetchMe(req, res, next) {
-		const supabase = req.db;
 		const { id } = req.user;
-		const { data } = await supabase
+		const { data } = await req.db
 			.from('Users')
 			.select('id,email,name,role,createdAt,updatedAt')
 			.eq('id', id)
@@ -119,9 +116,8 @@ export class UserController {
 	 */
 	static async fetchUsersById(req, res, next) {
 		try {
-			const supabase = req.db;
 			const { id } = req.params;
-			const { data } = await supabase
+			const { data } = await req.db
 				.from('Users')
 				.select('id,email,name,role,createdAt,updatedAt')
 				.eq('id', id)

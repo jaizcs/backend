@@ -14,9 +14,8 @@ export class widgetContoller {
 	 * @param { NextFunction } next
 	 */
 	static async fetchToken(req, res, next) {
-		const supabase = req.db;
 		const { id } = req.user;
-		const { data } = await supabase
+		const { data } = await req.db
 			.from('WidgetTokens')
 			.select()
 			.eq('UserId', id);
@@ -30,7 +29,6 @@ export class widgetContoller {
 	 */
 	static async createToken(req, res, next) {
 		try {
-			const supabase = req.db;
 			const { name } = req.body;
 			const { id } = req.user;
 
@@ -42,7 +40,7 @@ export class widgetContoller {
 					type: 'widget',
 				},
 			});
-			const { data } = await supabase
+			const { data } = await req.db
 				.from('WidgetTokens')
 				.insert({
 					token,

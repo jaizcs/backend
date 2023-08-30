@@ -9,7 +9,7 @@ let userId;
 let userAccessToken;
 
 const user1 = {
-	email: 'user.test@mail.com',
+	email: 'user.test.register@mail.com',
 	password: 'usertest',
 	name: 'test',
 	role: 'admin',
@@ -84,9 +84,7 @@ describe('User Routes Test', () => {
 
 			userAccessToken = body.accessToken;
 		});
-		it('401 error wrong email or password - should erroruser login', async ({
-			expect,
-		}) => {
+		it('401 error wrong email - should erroruser login', async ({ expect }) => {
 			const { body, status } = await request(app)
 				.post('/users/tokens')
 				.send(errorUser1);
@@ -94,11 +92,9 @@ describe('User Routes Test', () => {
 			expect(status).toBe(401);
 			expect(body).toHaveProperty('message', 'Wrong Email or Password');
 		});
-		it('401 error wrong email or password - should erroruser login', async ({
-			expect,
-		}) => {
+		it('401 error password - should erroruser login', async ({ expect }) => {
 			const { body, status } = await request(app).post('/users/tokens').send({
-				email: 'user.test@mail.com',
+				email: 'user.test.register@mail.com',
 				password: 'usertest1',
 				name: 'test',
 				role: 'admin',

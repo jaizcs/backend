@@ -144,9 +144,8 @@ export class TicketController {
 	static async fetchSimilarResolution(req, res, next) {
 		try {
 			const redis = req.redis;
-			const supabase = req.db;
 			const { id: ticketId } = req.params;
-			const { data: ticket } = await supabase
+			const { data: ticket } = await req.db
 				.from('Tickets')
 				.select()
 				.eq('id', +ticketId)
@@ -154,7 +153,7 @@ export class TicketController {
 
 			const description = ticket.description;
 
-			await supabase.from('Messages').insert({
+			await req.db.from('Messages').insert({
 				message: description,
 				role: 'customer',
 				TicketId: +ticketId,
@@ -178,7 +177,7 @@ export class TicketController {
 				const userId = await redis.lpop('user:queue');
 				if (!userId) throw new HttpError(404, 'User queue is empty');
 
-				const { data: userData } = await supabase
+				const { data: userData } = await req.db
 					.from('Users')
 					.select('id, name')
 					.eq('id', userId)
@@ -236,7 +235,7 @@ export class TicketController {
 			const userId = await req.redis.lpop('user:queue');
 			if (!userId) throw new HttpError(404, 'User queue is empty');
 
-			const { data: userData } = await supabase
+			const { data: userData } = await req.db
 				.from('Users')
 				.select('id, name')
 				.eq('id', userId)
@@ -263,20 +262,22 @@ export class TicketController {
 		try {
 			const { id: ticketId } = req.params;
 
-			const { resolution } = req.body;
+			const { resolution, isSatisfactory = false } = req.body;
+
 			const { error } = await req.db
 				.from('Tickets')
 				.update({
 					status: 'resolved',
-					isSatisfactory: true,
+					isSatisfactory,
 					resolution,
 				})
 				.eq('id', +ticketId)
 				.select('id,UserId')
 				.single();
+
 			if (error) throw new HttpError(400, 'invalid input syntax');
 
-			await supabase.from('Messages').insert({
+			await req.db.from('Messages').insert({
 				message: 'Thanks for your feedback!',
 				role: 'system',
 				TicketId: +ticketId,
@@ -284,6 +285,7 @@ export class TicketController {
 
 			res.status(200).send();
 		} catch (err) {
+			console.log(err, 'testtest');
 			next(err);
 		}
 	}

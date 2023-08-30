@@ -38,7 +38,7 @@ export class UserQueueController {
 	static async isInQueue(req, res) {
 		const { id: userId } = req.user;
 		const isInQueue = await req.redis.sismember('user:available', userId);
-		if (!isInQueue) res.status(200).json({ isAvailable: false });
+		if (!isInQueue) return res.status(200).json({ isAvailable: false });
 		res.status(200).json({ isAvailable: true });
 	}
 

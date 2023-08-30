@@ -19,7 +19,7 @@ export class TicketController {
 		try {
 			const { type, description } = req.body;
 
-			if (!description) throw new HttpError(400, 'Description must require');
+			if (!description) throw new HttpError(400, 'Description is required');
 
 			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,
@@ -76,13 +76,30 @@ export class TicketController {
 			const { limit, rangeStart, rangeEnd, pageCount } = usePagination({
 				count,
 				limit: 10,
-				page,
+				page: +page,
 			});
 
 			const dbQuery = req.db
 				.from('Tickets')
 				.select(
-					'id,type,description,isSatisfactory,status,resolution,UserId,createdAt,updatedAt',
+					`
+					id,
+					type,
+					description,
+					isSatisfactory,
+					status,
+					resolution,
+					UserId,
+					createdAt,
+					updatedAt,
+					user (
+						id,
+						name,
+						email,
+						role,
+						createdAt,
+						updatedAt
+					)`,
 				)
 				.order('id', {
 					ascending: false,
@@ -91,7 +108,7 @@ export class TicketController {
 				.range(rangeStart, rangeEnd);
 
 			if (userRole === 'staff') dbQuery.eq('UserId', userId);
-			if (status) dbQuery.eq('status', status);
+			if (status) dbQuery.in('status', status.trim().split(','));
 
 			const { data: tickets } = await dbQuery;
 
@@ -115,11 +132,11 @@ export class TicketController {
 		try {
 			const redis = req.redis;
 			const supabase = req.db;
-			const { id } = req.params;
+			const { id: ticketId } = req.params;
 			const { data: ticket } = await supabase
 				.from('Tickets')
 				.select()
-				.eq('id', id)
+				.eq('id', +ticketId)
 				.single();
 
 			const description = ticket.description;
@@ -127,7 +144,7 @@ export class TicketController {
 			await supabase.from('Messages').insert({
 				message: description,
 				role: 'customer',
-				TicketId: ticket,
+				TicketId: +ticketId,
 			});
 
 			const { data: embeddings } = await req.ai.embeddings.create({
@@ -147,13 +164,14 @@ export class TicketController {
 			if (tickets?.length === 0) {
 				const userId = await redis.lpop('user:queue');
 				if (!userId) throw new HttpError(404, 'User queue is empty');
+
 				const { data: userData } = await supabase
 					.from('Users')
 					.select('id, name')
 					.eq('id', userId)
 					.single();
 
-				await addTicketToQueue({ ticketId: ticket.id, userId: userId });
+				await addTicketToQueue({ ticketId: +ticketId, userId: userId });
 				return res.status(200).json({
 					user: {
 						id: userData.id,
@@ -175,15 +193,51 @@ export class TicketController {
 				model: 'gpt-3.5-turbo',
 			});
 
-			await req.db.from('Messages').insert({
-				TicketId: +id,
-				message: choices[0].message.content,
-				role: 'ai',
-			});
+			await req.db.from('Messages').insert([
+				{
+					TicketId: +ticketId,
+					message: choices[0].message.content,
+					role: 'ai',
+				},
+				{
+					TicketId: +ticketId,
+					message: 'CONFIRMATION',
+					role: 'system',
+				},
+			]);
 
 			res.status(200).send();
 		} catch (error) {
 			next(error);
+		}
+	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
+	static async assignTicket(req, res, next) {
+		try {
+			const { id: ticketId } = req.params;
+			const userId = await req.redis.lpop('user:queue');
+			if (!userId) throw new HttpError(404, 'User queue is empty');
+
+			const { data: userData } = await supabase
+				.from('Users')
+				.select('id, name')
+				.eq('id', userId)
+				.single();
+
+			await addTicketToQueue({ ticketId: +ticketId, userId: userId });
+			return res.status(200).json({
+				user: {
+					id: userData.id,
+					name: userData.name,
+				},
+			});
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -204,10 +258,16 @@ export class TicketController {
 					isSatisfactory: true,
 					resolution,
 				})
-				.eq('id', ticketId)
+				.eq('id', +ticketId)
 				.select('id,UserId')
 				.single();
 			if (error) throw new HttpError(400, 'invalid input syntax');
+
+			await supabase.from('Messages').insert({
+				message: 'Thanks for your feedback!',
+				role: 'system',
+				TicketId: +ticketId,
+			});
 
 			res.status(200).send();
 		} catch (err) {

@@ -37,7 +37,7 @@ export class UserController {
 				'duplicate key value violates unique constraint "Users_email_key"'
 			)
 				throw new HttpError(409, 'Email alredy exist');
-			res.status(201).send(user);
+			res.status(201).json(user);
 		} catch (err) {
 			next(err);
 		}
@@ -54,14 +54,19 @@ export class UserController {
 			const { email, password } = req.body;
 			if (!email) throw new HttpError(400, 'Email must Require');
 			if (!password) throw new HttpError(400, 'Password must Require');
+
+			console.log(email);
+
 			const { data } = await supabase
 				.from('Users')
 				.select()
 				.eq('email', email)
 				.single();
 			if (!data) throw new HttpError(401, 'Wrong Email or Password');
+
 			const thisPassword = comparePassword(password, data.password);
 			if (!thisPassword) throw new HttpError(401, 'Wrong Email or Password');
+
 			const token = generateToken(
 				{
 					id: data.id,

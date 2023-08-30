@@ -19,7 +19,7 @@ export class TicketController {
 		try {
 			const { type, description } = req.body;
 
-			if (!description) throw new HttpError(400, 'Description is required');
+			if (!description) throw new HttpError(400, 'Description must require');
 
 			const { data: embeddings } = await req.ai.embeddings.create({
 				input: description,

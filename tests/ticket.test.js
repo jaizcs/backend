@@ -147,7 +147,7 @@ describe('Ticket Routes Test', () => {
 	});
 
 	describe('GET /tickets/:id/similarity-search - generate similar search resolution', () => {
-		it.skip('200  generate similar search resolution - should return resolution', async ({
+		it('200  generate similar search resolution - should return resolution', async ({
 			expect,
 		}) => {
 			const res = await request(app)
@@ -168,15 +168,15 @@ describe('Ticket Routes Test', () => {
 				.get(`/tickets/${errTicketId}/similarity-search`)
 				.set('authorization', errTestTokenTicket);
 			const { body, status } = res;
-
 			expect(status).toBe(200);
 		}, 20000);
 	});
+
 	describe('PATCH /tickets/:id - resolve resolution from ai', () => {
 		it('200  patch resolution', async ({ expect }) => {
 			const res = await request(app)
 				.patch(`/tickets/${ticketId}`)
-				.send({ resolution: 'best resolution ever' })
+				.send({ resolution: 'best resolution ever', isSatisfactory: true })
 				.set('authorization', ticketAccessToken);
 			const { body, status } = res;
 			expect(status).toBe(200);

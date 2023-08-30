@@ -7,14 +7,24 @@ import { hashPassword } from '../../helpers/password.js';
 export const up = async (supabase) => {
 	// insert data
 	const password = hashPassword('123456');
-	await supabase.from('Users').insert({
-		email: 'johndoe@mail.com',
-		password,
-		name: 'John Doe',
-		role: 'admin',
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+	await supabase.from('Users').insert([
+		{
+			email: 'johndoe@mail.com',
+			password,
+			name: 'John Doe',
+			role: 'admin',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		},
+		{
+			email: 'staffdoe@mail.com',
+			password,
+			name: 'Staff Doe',
+			role: 'staff',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		},
+	]);
 };
 
 /**

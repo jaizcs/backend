@@ -8,6 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "nodemon bin/server.js",
+		"start": "node bin/server.js",
 		"test": "vitest run",
 		"test:watch": "vites run --watch",
 		"db:start": "supabase start && npm run db:seed:all",

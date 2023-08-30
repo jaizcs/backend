@@ -29,11 +29,17 @@ export class UserQueueController {
 			next(err);
 		}
 	}
+
+	/**
+	 * @param { Request } req
+	 * @param { Response } res
+	 * @param { NextFunction } next
+	 */
 	static async isInQueue(req, res) {
 		const { id: userId } = req.user;
 		const isInQueue = await req.redis.sismember('user:available', userId);
-		if (!isInQueue) res.status(200).send({ isAvailable: false });
-		res.status(200).send({ isAvailable: true });
+		if (!isInQueue) res.status(200).json({ isAvailable: false });
+		res.status(200).json({ isAvailable: true });
 	}
 
 	/**

@@ -11,7 +11,9 @@ let redis;
  */
 export const getRedisClient = () => {
 	if (!redis) {
-		redis = new Redis(REDIS_URL);
+		redis = new Redis(REDIS_URL, {
+			maxRetriesPerRequest: null,
+		});
 	}
 
 	return redis;

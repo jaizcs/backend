@@ -56,6 +56,11 @@ export const isUser = async (req, _res, next) => {
 			.eq('id', id)
 			.limit(1)
 			.single();
+
+		if (!user) {
+			throw new HttpError(401, 'Invalid access token');
+		}
+
 		req.user = user;
 
 		next();
